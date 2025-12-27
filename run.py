@@ -122,7 +122,7 @@ if page == "Intro":
 
     with col_img:
         st.image(
-            "Imgs/citi_bike_intro.jpg",
+            "Imgs/citi_bike_intro.png",
             caption="Source: Unsplash – Photo by Lavi Cella",
             width=450 
         )
