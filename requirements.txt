@@ -1,5 +1,7 @@
-pandas
-plotly
 streamlit
+pandas
+numpy
 matplotlib
-keplergl
+seaborn
+plotly
+pillow
