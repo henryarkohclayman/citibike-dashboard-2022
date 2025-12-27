@@ -10,10 +10,8 @@ import seaborn as sns
 
 
 # ----- PAGE CONFIG -----
-st.set_page_config(
-    page_title="Citi Bike 2022 – NYC Dashboard",
-    layout="wide"
-)
+st.set_page_config(page_title="Citi Bike 2022 – NYC Dashboard", layout="wide")
+
 
 # ----- DATA LOADING -----
 @st.cache_data
@@ -23,6 +21,7 @@ def load_data():
     if "trip_count" not in df.columns:
         df["trip_count"] = 1
     return df
+
 
 df = load_data()
 
@@ -35,11 +34,12 @@ page = st.sidebar.selectbox(
         "Top Stations",
         "Citibike Ride Map",
         "Ride Demand Heatmap: Hour vs. Weekday",
-        "Recommendations"
-    ]
+        "Recommendations",
+    ],
 )
 
 # ----- FUNCTIONS FOR CHARTS -----
+
 
 def plot_top_stations(df, column="start_station_name", top_n=10):
     data = df[column].value_counts().head(top_n).reset_index()
@@ -49,7 +49,7 @@ def plot_top_stations(df, column="start_station_name", top_n=10):
         x="Station",
         y="Trips",
         title=f"Top {top_n} Start Stations in NYC",
-        labels={"Station": "Station Name", "Trips": "Number of Trips"}
+        labels={"Station": "Station Name", "Trips": "Number of Trips"},
     )
     fig.update_layout(xaxis_tickangle=45)
     return fig
@@ -58,18 +58,16 @@ def plot_top_stations(df, column="start_station_name", top_n=10):
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
+
 def plot_trips_dual(daily_df):
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-# Add traces for daily trips and rolling average
+    # Add traces for daily trips and rolling average
     fig.add_trace(
         go.Scatter(
-            x=daily_df["date"],
-            y=daily_df["trips"],
-            name="Daily Trips",
-            mode="lines"
+            x=daily_df["date"], y=daily_df["trips"], name="Daily Trips", mode="lines"
         ),
-        secondary_y=False
+        secondary_y=False,
     )
 
     fig.add_trace(
@@ -77,14 +75,14 @@ def plot_trips_dual(daily_df):
             x=daily_df["date"],
             y=daily_df["trips_rolling"],
             name="7-day Moving Average",
-            mode="lines"
+            mode="lines",
         ),
-        secondary_y=True
+        secondary_y=True,
     )
 
     fig.update_layout(
         title="Daily Citi Bike Trips and 7-day Moving Average (2022)",
-        hovermode="x unified"
+        hovermode="x unified",
     )
 
     fig.update_xaxes(title_text="Date")
@@ -107,7 +105,8 @@ if page == "Intro":
     col_text, col_img = st.columns([3, 2], gap="large")
 
     with col_text:
-        st.markdown("""
+        st.markdown(
+            """
         Welcome to the **Citi Bike 2022 Dashboard**.  
 
         This dashboard explores Citi Bike usage patterns across New York City in 2022.
@@ -118,23 +117,25 @@ if page == "Intro":
         - View a **spatial overview of trips** on the Kepler map
         - Analyze **ride demand patterns** by hour and weekday
         - **Final recommendations** based on the analysis.
-        """)
+        """
+        )
 
     with col_img:
         st.image(
-            "Imgs/citi_bike_intro.png",
+            "./Imgs/citi_bike_intro.png",
             caption="Source: Unsplash – Photo by Lavi Cella",
-            width=450 
+            width=450,
         )
 
-    
+
 elif page == "How Temperature Influences Daily Trips":
     st.subheader("Daily Trips and 7-day Moving Average")
 
     fig_line = plot_trips_dual(daily)
     st.plotly_chart(fig_line, width="stretch")
 
-    st.markdown("""
+    st.markdown(
+        """
         **Interpretation:**  
         The dark blue line shows the **exact number of Citi Bike trips per day**, while the light blue line shows the 
         **7-day moving average**, which smooths short-term fluctuations.
@@ -145,7 +146,8 @@ elif page == "How Temperature Influences Daily Trips":
         - **Operational pressure:** Sustained high demand in summer months may challenge bike availability and require more intensive redistribution.
 
         - **Trend clarity with 7-day average:** The 7-day moving average highlights the overall seasonal trend and helps filter out daily noise for clearer interpretation.
-    """)
+    """
+    )
 
 
 elif page == "Top Stations":
@@ -154,7 +156,8 @@ elif page == "Top Stations":
     fig_bar = plot_top_stations(df)
     st.plotly_chart(fig_bar, width="stretch")
 
-    st.markdown("""
+    st.markdown(
+        """
         **Interpretation:**  
         This bar chart shows the **top start stations** by number of trips in 2022.  
         A small group of stations clearly dominates usage, indicating **high-demand locations** 
@@ -167,7 +170,8 @@ elif page == "Top Stations":
 
         Ensuring enough bikes and docks at these stations can significantly improve 
         the overall user experience and reduce shortages.
-    """)
+    """
+    )
 
 elif page == "Citibike Ride Map":
     st.subheader("Citi Bike Trips Map – Kepler.gl")
@@ -185,41 +189,45 @@ elif page == "Citibike Ride Map":
             kepler_html = f.read()
 
         kepler_html = kepler_html.replace(
-            "longitude:-122",
-            "longitude:-74.0060"
-        ).replace(
-            "latitude:37.",
-            "latitude:40.7128"
-        )
+            "longitude:-122", "longitude:-74.0060"
+        ).replace("latitude:37.", "latitude:40.7128")
 
         st.components.v1.html(custom_css + kepler_html, height=700, scrolling=True)
 
-        st.markdown("""
+        st.markdown(
+            """
         ### Interpretation  
         New York shows the highest concentration of Citi Bike activity in central Manhattan,
         especially around Midtown and Downtown. High-density areas indicate strong commuter
         and tourist traffic, while outer zones show lower demand.
-        """)
+        """
+        )
 
     except FileNotFoundError:
-        st.error("Kepler map file not found. Check that 'Docs/citibike_small_map.html' exists.")
+        st.error(
+            "Kepler map file not found. Check that 'Docs/citibike_small_map.html' exists."
+        )
 
 elif page == "Ride Demand Heatmap: Hour vs. Weekday":
     st.subheader("Peak Demand: Heatmap by Hour and Weekday")
-
 
     df["started_at"] = pd.to_datetime(df["started_at"])
     df["hour"] = df["started_at"].dt.hour
     df["weekday"] = df["started_at"].dt.day_name()
 
     pivot = df.pivot_table(
-        index="weekday",
-        columns="hour",
-        values="trip_count",
-        aggfunc="count"
+        index="weekday", columns="hour", values="trip_count", aggfunc="count"
     ).fillna(0)
 
-    ordered_days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+    ordered_days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
     pivot = pivot.reindex(ordered_days)
 
     fig, ax = plt.subplots(figsize=(12, 5))
@@ -230,7 +238,8 @@ elif page == "Ride Demand Heatmap: Hour vs. Weekday":
 
     st.pyplot(fig)
 
-    st.markdown("""
+    st.markdown(
+        """
     ### Interpretation
     This heatmap shows at which hours and on which days Citi Bike demand peaks.
 
@@ -242,12 +251,14 @@ elif page == "Ride Demand Heatmap: Hour vs. Weekday":
         - Redistribution teams should focus on commuter patterns.
 
     This chart supports a clear plan to optimize Citi Bike availability across NYC.
-    """)
+    """
+    )
 
 elif page == "Recommendations":
     st.header("Recommendations")
 
-    st.markdown("""
+    st.markdown(
+        """
     Based on the overall analysis of Citi Bike usage patterns in New York City, 
     several clear opportunities emerge for optimizing bike supply and improving system efficiency.
 
@@ -279,7 +290,8 @@ elif page == "Recommendations":
     ### Conclusion  
     With strategic redistribution, time-dependent supply planning, and predictive insights, 
     Citi Bike can significantly reduce shortages and improve availability across New York City.
-    """)
+    """
+    )
 
 
 # ----- END OF FILE -----
